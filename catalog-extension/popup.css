@@ -1,0 +1,59 @@
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+body {
+  width: 380px; margin: 0; padding: 14px;
+  font: 13px/1.4 system-ui, sans-serif;
+  background: #14161a; color: #e8eaed;
+}
+h1 { font-size: 15px; margin: 0 0 10px; }
+h2 { font-size: 13px; margin: 14px 0 6px; }
+h2 span { color: #8a919c; font-weight: 400; }
+label { display: block; margin-bottom: 4px; color: #a9b0ba; }
+textarea, input {
+  width: 100%; padding: 7px; border-radius: 6px;
+  border: 1px solid #343a44; background: #1d2026; color: inherit; font: inherit;
+}
+.channel p { margin: 0 0 6px; color: #a9b0ba; word-break: break-word; white-space: pre-line; }
+label.check { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; }
+label.check input { width: auto; }
+.hint { margin: 0 0 8px; color: #8a919c; font-size: 12px; }
+details { margin: 8px 0; color: #a9b0ba; }
+summary { cursor: pointer; }
+.row { display: flex; gap: 8px; margin: 10px 0; }
+button {
+  padding: 7px 12px; border-radius: 6px; border: 1px solid #343a44;
+  background: #262b33; color: inherit; font: inherit; cursor: pointer;
+}
+button:hover { background: #2f353f; }
+button.primary { background: #f2a900; border-color: #f2a900; color: #14161a; font-weight: 600; }
+button:disabled { opacity: .5; cursor: default; }
+[hidden] { display: none !important; }
+#choice { margin: 10px 0; padding: 10px; border: 1px solid #f2a900; border-radius: 6px; }
+#choiceList button { display: block; width: 100%; text-align: left; margin-bottom: 6px; }
+#progress { margin: 6px 0; color: #f2a900; }
+#log {
+  max-height: 120px; overflow: auto; margin: 6px 0; padding: 8px;
+  background: #0f1114; border-radius: 6px; font: 11px/1.4 ui-monospace, monospace;
+  white-space: pre-wrap; color: #a9b0ba;
+}
+#log:empty { display: none; }
+#catalog { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow: auto; }
+#catalog li { padding: 2px 0; border-bottom: 1px solid #262b33; }
+#catalog small { color: #8a919c; }
+#catalog button { padding: 2px 8px; }
+#catalog summary { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; color: #e8eaed; }
+#catalog summary::marker { color: #8a919c; }
+#catalog .seasons { display: grid; gap: 2px; padding: 2px 0 8px 18px; }
+#catalog .season { display: flex; align-items: center; gap: 6px; margin: 0; padding: 2px 0; color: #e8eaed; cursor: pointer; }
+#catalog .season.off { color: #6c727c; text-decoration: line-through; }
+#catalog .season input { width: auto; }
+#catalog .bulk { display: flex; gap: 6px; margin-top: 4px; }
+#msg { color: #8a919c; margin: 4px 0 0; word-break: break-word; }
+
+.chlogbox { margin-top: 6px; color: #a9b0ba; }
+.chlogbox summary { cursor: pointer; }
+#chLog {
+  max-height: 170px; overflow: auto; margin: 6px 0; padding: 8px;
+  background: #0f1114; border-radius: 6px; font: 11px/1.4 ui-monospace, monospace;
+  white-space: pre-wrap; word-break: break-word; color: #a9b0ba;
+}

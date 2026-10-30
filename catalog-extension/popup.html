@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>CN Catalog Builder</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <h1>CN Catalog Builder</h1>
+
+  <div class="row">
+    <button id="startCurrent" class="primary">Leer serie de esta pestaña</button>
+    <button id="cancel" hidden>Cancelar</button>
+  </div>
+  <p class="hint">Abre la página de una serie en Max y pulsa el botón. Si algo falla, pulsa de nuevo: solo reintenta lo que faltó.</p>
+  <label class="check"><input id="full" type="checkbox"> Releer toda la serie (ignora reintentos)</label>
+
+  <details>
+    <summary>Buscar por nombre (beta)</summary>
+    <label for="names">Series (una por línea)</label>
+    <textarea id="names" rows="3" placeholder="Hora de Aventura&#10;Steven Universe"></textarea>
+    <label for="base">URL base de Max</label>
+    <input id="base" type="text" value="https://play.hbomax.com">
+    <div class="row"><button id="start">Buscar e investigar</button></div>
+  </details>
+
+  <div id="choice" hidden>
+    <p>Varios resultados para <b id="choiceQuery"></b>. Elige uno:</p>
+    <div id="choiceList"></div>
+    <button id="skip">Omitir esta serie</button>
+  </div>
+
+  <div id="progress" hidden></div>
+  <pre id="log"></pre>
+
+  <h2>Canal</h2>
+  <div id="channel" class="channel">
+    <p id="channelInfo">Detenido</p>
+    <div class="row">
+      <button id="chNext" disabled>⏭ Siguiente</button>
+      <button id="chStop" disabled>⏹ Detener canal</button>
+    </div>
+    <details class="chlogbox">
+      <summary>Registro del canal</summary>
+      <pre id="chLog"></pre>
+      <div class="row"><button id="chLogCopy">Copiar registro</button></div>
+    </details>
+  </div>
+
+  <h2>Catálogo <span id="totals"></span></h2>
+  <ul id="catalog"></ul>
+
+  <div class="row">
+    <button id="download">Descargar JSON</button>
+    <button id="import" title="Fusiona un catalog.json con el catálogo actual">Importar JSON</button>
+    <input id="importFile" type="file" accept=".json,application/json" hidden>
+    <button id="diag" title="Copia info del DOM de la pestaña actual de Max">Diagnóstico</button>
+  </div>
+  <p id="msg"></p>
+
+  <script src="catalog.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,458 @@
+:root {
+  --f-osd: "VT323", ui-monospace, monospace;
+  --f-label: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --f-logo: "Archivo Black", Impact, sans-serif;
+
+  --plastic-hi: #2b2e35;
+  --plastic: #1b1d22;
+  --plastic-lo: #0e0f12;
+  --ink: #c9ccd2;
+  --led: #ff2a1f;
+  --play: #3ddc5a;
+  --play-deep: #178a30;
+  --rw: clamp(210px, min(30vw, 32vh), 300px);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; margin: 0; }
+
+body {
+  background: #000;
+  color: #fff;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- pantalla ---------- */
+.tv {
+  position: relative;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  isolation: isolate;
+}
+
+.noise {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  z-index: -3;
+}
+
+/* Scanlines, viñeta, barra de rodillo y parpadeo de fósforo. */
+.crt {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.72) 100%),
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.32) 0 1px, transparent 1px 3px);
+  animation: flicker 0.14s steps(2) infinite;
+}
+
+.crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.09) 50%, transparent 100%);
+  height: 22%;
+  animation: roll 7s linear infinite;
+}
+
+.tv::before {
+  /* Destello de pantalla cuando el control transmite. */
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-out;
+}
+.tv[data-tx="true"]::before { opacity: 0.16; transition-duration: 0s; }
+
+@keyframes flicker { 0% { opacity: 0.94; } 100% { opacity: 1; } }
+@keyframes roll { from { transform: translateY(-120%); } to { transform: translateY(560%); } }
+
+/* ---------- logo ---------- */
+.tv__top {
+  padding: clamp(18px, 4.5vh, 44px) 16px 0;
+}
+
+.logo {
+  display: block;
+  width: clamp(190px, 26vw, 330px);
+  height: auto;
+  filter: drop-shadow(0 0 1px #000) drop-shadow(0 6px 18px rgba(0, 0, 0, 0.7));
+  animation: logo-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes logo-in {
+  from { opacity: 0; transform: translateY(-14px) scale(0.96); filter: blur(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- logo del canal (abajo a la derecha) ---------- */
+.bug {
+  position: fixed;
+  right: clamp(14px, 3vw, 44px);
+  bottom: clamp(14px, 3.5vh, 40px);
+  width: clamp(84px, 9vw, 170px);
+  height: auto;
+  opacity: 0.94;
+  z-index: 5;
+  pointer-events: none;
+  user-select: none;
+  /* El logo va tal cual es (sin placa ni contorno), como en el original. */
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.55));
+  animation: logo-in 0.9s 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* ---------- OSD (texto en pantalla) ---------- */
+.osd {
+  align-self: center;
+  text-align: center;
+  font-family: var(--f-osd);
+  color: #fff;
+  text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 12px rgba(0, 0, 0, 0.9);
+  padding: 0 16px;
+}
+
+.osd__ch {
+  position: fixed;
+  top: clamp(14px, 3vh, 30px);
+  left: clamp(16px, 3vw, 40px);
+  font-size: clamp(30px, 4.2vw, 52px);
+  line-height: 1;
+  color: #5cff7a;
+}
+
+.osd__msg {
+  margin: 0;
+  font-size: clamp(30px, 4.6vw, 56px);
+  letter-spacing: 0.06em;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 0.05em 0.5em 0;
+  display: inline-block;
+}
+
+.osd__msg--hint { animation: blink 1.4s steps(1) infinite; }
+.osd__msg--flash { animation: osd-pop 0.18s steps(3) both; }
+
+@keyframes blink { 0%, 62% { opacity: 1; } 63%, 100% { opacity: 0; } }
+@keyframes osd-pop { from { transform: scale(1.12); } to { transform: none; } }
+
+/* ---------- control remoto ---------- */
+.tv__remote {
+  /* Solo se ve la parte de arriba del control; el resto queda "fuera de cuadro". */
+  height: calc(var(--rw) * 1.95);
+  overflow: hidden;
+  padding: 0 20px;
+  animation: remote-in 0.8s 0.25s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+
+@keyframes remote-in {
+  from { transform: translateY(40%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+.remote {
+  --u: calc(var(--rw) / 20);
+  font-size: var(--u);
+  width: var(--rw);
+  height: calc(var(--rw) * 3.1);
+  margin: 0 auto;
+  padding: 2.1em 1.7em;
+  border-radius: 3.2em 3.2em 2em 2em;
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.07), transparent 22%, transparent 78%, rgba(0, 0, 0, 0.35)),
+    linear-gradient(to bottom, var(--plastic-hi), var(--plastic) 30%, var(--plastic-lo));
+  box-shadow:
+    inset 0 0.12em 0 rgba(255, 255, 255, 0.16),
+    inset 0 -0.2em 0.6em rgba(0, 0, 0, 0.6),
+    0 -0.4em 2.4em rgba(0, 0, 0, 0.8),
+    0 0 0 0.12em #000;
+  transform: rotate(-2.5deg);
+  transform-origin: 50% 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5em;
+  font-family: var(--f-label);
+}
+
+.remote > * { flex-shrink: 0; }
+
+/* Emisor infrarrojo */
+.remote__ir {
+  position: relative;
+  width: 8em;
+  height: 1.3em;
+  border-radius: 0.65em;
+  background: linear-gradient(#1a0505, #3a0a0a);
+  box-shadow: inset 0 0.1em 0.3em #000, 0 0.06em 0 rgba(255, 255, 255, 0.12);
+}
+.remote__ir i {
+  position: absolute;
+  inset: 0.3em 0.5em;
+  border-radius: 0.4em;
+  background: #4a0d0d;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.remote__ir.is-tx i {
+  background: var(--led);
+  box-shadow: 0 0 1.2em 0.4em rgba(255, 42, 31, 0.8);
+  transition: none;
+}
+
+.remote__brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  color: #7c8088;
+  text-shadow: 0 0.08em 0 rgba(0, 0, 0, 0.8), 0 -0.05em 0 rgba(255, 255, 255, 0.08);
+}
+.remote__brand b { font-family: var(--f-logo); font-size: 1.5em; letter-spacing: -0.02em; font-weight: 400; }
+.remote__brand span { font-size: 0.95em; font-weight: 600; letter-spacing: 0.22em; }
+
+/* Teclas principales */
+.remote__main {
+  display: flex;
+  gap: 1.9em;
+  margin-top: 0.4em;
+}
+
+.keywrap { display: grid; justify-items: center; gap: 0.7em; }
+
+.keylabel {
+  font-size: 1.05em;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-shadow: 0 0.08em 0 #000;
+}
+
+.key {
+  --face: #33363d;
+  --face-lo: #1d1f24;
+  position: relative;
+  width: 6.4em;
+  height: 6.4em;
+  border: 0;
+  border-radius: 2.3em;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  color: #e9ebef;
+  cursor: pointer;
+  background:
+    radial-gradient(120% 90% at 30% 15%, rgba(255, 255, 255, 0.28), transparent 55%),
+    linear-gradient(to bottom, var(--face), var(--face-lo));
+  box-shadow:
+    inset 0 0.12em 0.05em rgba(255, 255, 255, 0.35),
+    inset 0 -0.35em 0.5em rgba(0, 0, 0, 0.45),
+    0 0.55em 0 #050506,
+    0 0.9em 1.1em rgba(0, 0, 0, 0.65);
+  transition: transform 0.08s, box-shadow 0.08s, filter 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.key svg { width: 46%; height: 46%; filter: drop-shadow(0 0.1em 0 rgba(0, 0, 0, 0.5)); }
+
+.key--play { --face: var(--play); --face-lo: var(--play-deep); color: #06210d; }
+.key--play svg { transform: translateX(6%); }
+
+.key:hover { filter: brightness(1.12); }
+.key:active,
+.key.is-pressed {
+  transform: translateY(0.45em);
+  box-shadow:
+    inset 0 0.1em 0.05em rgba(255, 255, 255, 0.2),
+    inset 0 -0.2em 0.4em rgba(0, 0, 0, 0.5),
+    0 0.1em 0 #050506,
+    0 0.2em 0.5em rgba(0, 0, 0, 0.6);
+}
+.key:focus-visible { outline: 0.22em solid #fff; outline-offset: 0.35em; }
+
+.key--play { animation: play-glow 2.2s ease-in-out infinite; }
+@keyframes play-glow {
+  0%, 100% { box-shadow: inset 0 0.12em 0.05em rgba(255,255,255,.35), inset 0 -0.35em 0.5em rgba(0,0,0,.45), 0 0.55em 0 #050506, 0 0.9em 1.1em rgba(0,0,0,.65), 0 0 0 rgba(61,220,90,0); }
+  50%      { box-shadow: inset 0 0.12em 0.05em rgba(255,255,255,.35), inset 0 -0.35em 0.5em rgba(0,0,0,.45), 0 0.55em 0 #050506, 0 0.9em 1.1em rgba(0,0,0,.65), 0 0 2.2em 0.2em rgba(61,220,90,.45); }
+}
+.key--play:active { animation: none; }
+
+/* Cruceta decorativa */
+.remote__dpad {
+  position: relative;
+  width: 14em;
+  height: 14em;
+  margin-top: 0.8em;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.1), transparent 60%),
+    linear-gradient(to bottom, #2c2f35, #15171b);
+  box-shadow: inset 0 0.1em 0 rgba(255, 255, 255, 0.18), inset 0 -0.3em 0.6em #000, 0 0.35em 0.8em rgba(0, 0, 0, 0.7);
+}
+.dpad__ok {
+  position: absolute;
+  inset: 4.6em;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.4em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  background: linear-gradient(to bottom, #3a3d44, #1c1e23);
+  box-shadow: inset 0 0.1em 0 rgba(255, 255, 255, 0.25), 0 0.2em 0.4em #000;
+}
+.dpad__arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 0.9em solid transparent;
+  filter: drop-shadow(0 0.08em 0 #000);
+}
+.dpad__arrow--u { top: 0.7em; left: calc(50% - 0.9em); border-bottom: 1.1em solid #8b8f97; border-top: 0; }
+.dpad__arrow--d { bottom: 0.7em; left: calc(50% - 0.9em); border-top: 1.1em solid #8b8f97; border-bottom: 0; }
+.dpad__arrow--l { left: 0.7em; top: calc(50% - 0.9em); border-right: 1.1em solid #8b8f97; border-left: 0; }
+.dpad__arrow--r { right: 0.7em; top: calc(50% - 0.9em); border-left: 1.1em solid #8b8f97; border-right: 0; }
+
+/* Balancines de volumen / canal (decorativos) */
+.remote__rockers { display: flex; gap: 4.2em; margin-top: 0.6em; }
+.rocker {
+  width: 4.6em;
+  height: 9em;
+  border-radius: 2.3em;
+  display: grid;
+  grid-template-rows: 1fr auto 1fr;
+  place-items: center;
+  font-size: 1em;
+  color: var(--ink);
+  background: linear-gradient(to bottom, #2e3137, #17191d);
+  box-shadow: inset 0 0.1em 0 rgba(255, 255, 255, 0.2), 0 0.35em 0.6em rgba(0, 0, 0, 0.7);
+}
+.rocker span { font-size: 1.8em; line-height: 1; font-weight: 600; }
+.rocker em { font-style: normal; font-size: 0.85em; font-weight: 700; letter-spacing: 0.14em; opacity: 0.75; }
+
+/* Teclado numérico (decorativo, casi todo queda fuera de cuadro) */
+.remote__numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1em;
+  width: 100%;
+  margin-top: 0.6em;
+}
+.remote__numpad span {
+  height: 3.8em;
+  border-radius: 1.2em;
+  display: grid;
+  place-items: center;
+  font-size: 1.6em;
+  font-weight: 600;
+  color: var(--ink);
+  background: linear-gradient(to bottom, #2c2f35, #181a1e);
+  box-shadow: inset 0 0.1em 0 rgba(255, 255, 255, 0.18), 0 0.3em 0.5em rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- capa del bumper (a pantalla completa, bajo el logo del canal) ---------- */
+.bumper {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  background: #000;
+  cursor: none;
+}
+.bumper video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  display: block;
+}
+/* Al terminar queda negro (sin el ultimo cuadro) mientras la extension cambia de pestaña. */
+.bumper--ended video { visibility: hidden; }
+
+/* ---------- menu de configuracion (OSD) ---------- */
+.cfg-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.55);
+  animation: cfg-fade 0.15s steps(3) both;
+}
+@keyframes cfg-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.cfg {
+  width: min(520px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: clamp(16px, 3vw, 28px);
+  font-family: var(--f-osd);
+  font-size: clamp(22px, 2.6vw, 30px);
+  line-height: 1.2;
+  color: #fff;
+  background: rgba(6, 8, 10, 0.94);
+  border: 3px solid #5cff7a;
+  box-shadow: 0 0 0 3px #000, 0 12px 40px rgba(0, 0, 0, 0.7);
+  text-shadow: 2px 2px 0 #000;
+}
+.cfg__title {
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  font-size: 1.15em;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: #5cff7a;
+  border-bottom: 2px dashed rgba(92, 255, 122, 0.5);
+}
+.cfg__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 5px 0;
+}
+.cfg__row > span { color: #b9bfc7; letter-spacing: 0.08em; }
+.cfg__row > b { font-weight: 400; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.cfg button {
+  font: inherit;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background: #16191d;
+  border: 2px solid #5f6670;
+  padding: 2px 12px 0;
+  cursor: pointer;
+  text-shadow: inherit;
+}
+.cfg button:hover:not(:disabled) { border-color: #5cff7a; color: #5cff7a; }
+.cfg button:disabled { opacity: 0.4; cursor: default; }
+.cfg button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+.cfg__switch { min-width: 4.2em; }
+.cfg__switch.is-on { color: #06210d; background: #5cff7a; border-color: #5cff7a; text-shadow: none; }
+.cfg__switch.is-on:hover:not(:disabled) { color: #06210d; }
+
+.cfg__actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 6px; }
+.cfg__hint, .cfg__status, .cfg__warn { margin: 10px 0 0; font-size: 0.8em; color: #9aa1aa; line-height: 1.25; }
+.cfg__status { color: #ffd257; }
+.cfg__warn { color: #ffd257; font-size: 0.95em; }
+.cfg__close { display: block; margin: 16px 0 0 auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .crt, .crt::after, .logo, .tv__remote, .key--play, .osd__msg--hint, .cfg-backdrop, .bug { animation: none; }
+}
+
+@media (max-height: 560px) {
+  .osd__msg { font-size: 26px; }
+}

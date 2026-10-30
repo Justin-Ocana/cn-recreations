@@ -1,0 +1,70 @@
+{
+  "manifest_version": 3,
+  "name": "CN Catalog Builder",
+  "version": "0.6.0",
+  "description": "Investiga series en Max, arma un catalogo JSON de episodios y maneja el canal de reproduccion.",
+  "permissions": [
+    "storage",
+    "tabs",
+    "alarms"
+  ],
+  "host_permissions": [
+    "*://*.max.com/*",
+    "*://*.hbomax.com/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*",
+    "https://www.cloudflare.com/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "logo.png"
+      ],
+      "matches": [
+        "*://*.max.com/*",
+        "*://*.hbomax.com/*"
+      ]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "CN Catalog Builder"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.max.com/*",
+        "*://*.hbomax.com/*"
+      ],
+      "js": [
+        "overlay.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "*://*.max.com/*",
+        "*://*.hbomax.com/*"
+      ],
+      "js": [
+        "parse.js",
+        "content.js",
+        "controller.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "http://localhost/*",
+        "http://127.0.0.1/*"
+      ],
+      "js": [
+        "bridge.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
+}
